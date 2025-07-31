@@ -21,10 +21,8 @@ import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import net.wurstclient.forge.analytics.JGoogleAnalyticsTracker;
 import net.wurstclient.forge.clickgui.ClickGui;
 import net.wurstclient.forge.compatibility.WMinecraft;
-import net.wurstclient.forge.update.WurstUpdater;
 
 @Mod(modid = ForgeWurst.MODID,
 	version = ForgeWurst.VERSION,
@@ -45,12 +43,10 @@ public final class ForgeWurst
 	private CommandList cmds;
 	private KeybindList keybinds;
 	private ClickGui gui;
-	private GoogleAnalytics analytics;
 	
 	private IngameHUD hud;
 	private CommandProcessor cmdProcessor;
 	private KeybindProcessor keybindProcessor;
-	private WurstUpdater updater;
 	
 	@EventHandler
 	public void init(FMLInitializationEvent event)
@@ -85,16 +81,6 @@ public final class ForgeWurst
 		gui = new ClickGui(configFolder.resolve("windows.json"));
 		gui.init(hax);
 		
-		JGoogleAnalyticsTracker.setProxy(System.getenv("http_proxy"));
-		analytics = new GoogleAnalytics("UA-52838431-17",
-			"client.forge.wurstclient.net",
-			configFolder.resolve("analytics.json"));
-		analytics.loadConfig();
-		
-		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		analytics.getConfigData()
-			.setScreenResolution(screen.width + "x" + screen.height);
-		
 		hud = new IngameHUD(hax, gui);
 		MinecraftForge.EVENT_BUS.register(hud);
 		
@@ -103,12 +89,7 @@ public final class ForgeWurst
 		
 		keybindProcessor = new KeybindProcessor(hax, keybinds, cmdProcessor);
 		MinecraftForge.EVENT_BUS.register(keybindProcessor);
-		
-		updater = new WurstUpdater();
-		MinecraftForge.EVENT_BUS.register(updater);
-		
-		analytics.trackPageView("/mc" + WMinecraft.VERSION + "/v" + VERSION,
-			"ForgeWurst " + VERSION + " MC" + WMinecraft.VERSION);
+
 	}
 	
 	public static ForgeWurst getForgeWurst()
